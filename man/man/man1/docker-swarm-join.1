@@ -1,0 +1,43 @@
+.TH "DOCKER" "1" "Aug 2017" "Docker Community" "" 
+.nh
+.ad l
+
+
+.SH NAME
+.PP
+docker\-swarm\-join \- Join a swarm as a node and/or manager
+
+
+.SH SYNOPSIS
+.PP
+\fBdocker swarm join [OPTIONS] HOST:PORT\fP
+
+
+.SH DESCRIPTION
+.PP
+Join a swarm as a node and/or manager
+
+
+.SH OPTIONS
+.PP
+\fB\-\-advertise\-addr\fP=""
+    Advertised address (format: <ip|interface>[:port])
+
+.PP
+\fB\-\-listen\-addr\fP=0.0.0.0:2377
+    Listen address (format: <ip|interface>[:port])
+
+.PP
+\fB\-\-token\fP=""
+    Token for entry into the swarm
+
+
+.SH OPTIONS INHERITED FROM PARENT COMMANDS
+.PP
+\fB\-\-help\fP[=false]
+    Print usage
+
+
+.SH SEE ALSO
+.PP
+\fBdocker\-swarm(1)\fP

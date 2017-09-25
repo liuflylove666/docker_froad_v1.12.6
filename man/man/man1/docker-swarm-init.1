@@ -1,0 +1,59 @@
+.TH "DOCKER" "1" "Aug 2017" "Docker Community" "" 
+.nh
+.ad l
+
+
+.SH NAME
+.PP
+docker\-swarm\-init \- Initialize a swarm
+
+
+.SH SYNOPSIS
+.PP
+\fBdocker swarm init [OPTIONS]\fP
+
+
+.SH DESCRIPTION
+.PP
+Initialize a swarm
+
+
+.SH OPTIONS
+.PP
+\fB\-\-advertise\-addr\fP=""
+    Advertised address (format: <ip|interface>[:port])
+
+.PP
+\fB\-\-cert\-expiry\fP=2160h0m0s
+    Validity period for node certificates
+
+.PP
+\fB\-\-dispatcher\-heartbeat\fP=5s
+    Dispatcher heartbeat period
+
+.PP
+\fB\-\-external\-ca\fP=
+    Specifications of one or more certificate signing endpoints
+
+.PP
+\fB\-\-force\-new\-cluster\fP[=false]
+    Force create a new cluster from current state.
+
+.PP
+\fB\-\-listen\-addr\fP=0.0.0.0:2377
+    Listen address (format: <ip|interface>[:port])
+
+.PP
+\fB\-\-task\-history\-limit\fP=5
+    Task history retention limit
+
+
+.SH OPTIONS INHERITED FROM PARENT COMMANDS
+.PP
+\fB\-\-help\fP[=false]
+    Print usage
+
+
+.SH SEE ALSO
+.PP
+\fBdocker\-swarm(1)\fP

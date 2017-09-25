@@ -1012,6 +1012,24 @@ func (ep *endpoint) assignAddressVersion(ipVer int, ipam ipamapi.Ipam) error {
 		if progAdd != nil && !d.Pool.Contains(progAdd) {
 			continue
 		}
+                log.Debugf("lcb-20170221-40002:%v ", ep.ipamOptions)
+                log.Debugf("lcb-20170221-40002_1:%v ", n.ipamOptions)
+                // add by liuchunbo 
+                if len(ep.ipamOptions) ==0 {
+                        ep.ipamOptions = make(map[string]string)
+            	    }
+
+                if len(n.ipamOptions) > 0 {
+                        for k, v := range n.ipamOptions {
+                                if _,ok := ep.ipamOptions[k]; !ok {
+                                        ep.ipamOptions[k] = v
+                                        log.Debugf("k=%v, v=%v", k, v)
+                                }
+                        }
+                }
+                log.Debugf("lcb-20170221-40005:%v ", ep.ipamOptions)
+                // end add
+
 		addr, _, err := ipam.RequestAddress(d.PoolID, progAdd, ep.ipamOptions)
 		if err == nil {
 			ep.Lock()

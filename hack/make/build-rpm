@@ -36,7 +36,8 @@ set -e
 	# if we have a "-dev" suffix or have change in Git, let's make this package version more complex so it works better
 	if [[ "$rpmVersion" == *-dev ]] || [ -n "$(git status --porcelain)" ]; then
 		gitUnix="$(git log -1 --pretty='%at')"
-		gitDate="$(date --date "@$gitUnix" +'%Y%m%d.%H%M%S')"
+		#gitDate="$(date --date "@$gitUnix" +'%Y%m%d.%H%M%S')"
+		gitDate="$(date +'%Y%m%d.%H%M%S')"
 		gitCommit="$(git log -1 --pretty='%h')"
 		gitVersion="${gitDate}.git${gitCommit}"
 		# gitVersion is now something like '20150128.112847.17e840a'
@@ -119,9 +120,9 @@ set -e
 			WORKDIR /root/rpmbuild
 			RUN ln -sfv /usr/src/${rpmName}/hack/make/.build-rpm SPECS
 			WORKDIR /root/rpmbuild/SPECS
-			RUN tar --exclude .git -r -C /usr/src -f /root/rpmbuild/SOURCES/${rpmName}.tar ${rpmName}
-			RUN tar --exclude .git -r -C /go/src/github.com/docker -f /root/rpmbuild/SOURCES/${rpmName}.tar containerd
-			RUN tar --exclude .git -r -C /go/src/github.com/opencontainers -f /root/rpmbuild/SOURCES/${rpmName}.tar runc
+			RUN tar  -r -C /usr/src -f /root/rpmbuild/SOURCES/${rpmName}.tar ${rpmName}
+			RUN tar  -r -C /go/src/github.com/docker -f /root/rpmbuild/SOURCES/${rpmName}.tar containerd
+			RUN tar  -r -C /go/src/github.com/opencontainers -f /root/rpmbuild/SOURCES/${rpmName}.tar runc
 			RUN gzip /root/rpmbuild/SOURCES/${rpmName}.tar
 			RUN { cat /usr/src/${rpmName}/contrib/builder/rpm/${PACKAGE_ARCH}/changelog; } >> ${rpmName}.spec && tail >&2 ${rpmName}.spec
 			RUN rpmbuild -ba \
@@ -152,7 +153,7 @@ set -e
 		tempImage="docker-temp/build-rpm:$version"
 		( set -x && docker build -t "$tempImage" -f $DEST/$version/Dockerfile.build . )
 		docker run --rm "$tempImage" bash -c 'cd /root/rpmbuild && tar -c *RPMS' | tar -xvC "$DEST/$version"
-		docker rmi "$tempImage"
+		#docker rmi "$tempImage"
 	done
 
 	source "$(dirname "$BASH_SOURCE")/.integration-daemon-stop"

@@ -1,0 +1,143 @@
+.TH "DOCKER" "1" "Aug 2017" "Docker Community" "" 
+.nh
+.ad l
+
+
+.SH NAME
+.PP
+docker\-service\-create \- Create a new service
+
+
+.SH SYNOPSIS
+.PP
+\fBdocker service create [OPTIONS] IMAGE [COMMAND] [ARG...]\fP
+
+
+.SH DESCRIPTION
+.PP
+Create a new service
+
+
+.SH OPTIONS
+.PP
+\fB\-\-constraint\fP=[]
+    Placement constraints
+
+.PP
+\fB\-\-container\-label\fP=[]
+    Container labels
+
+.PP
+\fB\-\-endpoint\-mode\fP=""
+    Endpoint mode (vip or dnsrr)
+
+.PP
+\fB\-e\fP, \fB\-\-env\fP=[]
+    Set environment variables
+
+.PP
+\fB\-l\fP, \fB\-\-label\fP=[]
+    Service labels
+
+.PP
+\fB\-\-limit\-cpu\fP=0.000
+    Limit CPUs
+
+.PP
+\fB\-\-limit\-memory\fP=0 B
+    Limit Memory
+
+.PP
+\fB\-\-log\-driver\fP=""
+    Logging driver for service
+
+.PP
+\fB\-\-log\-opt\fP=[]
+    Logging driver options
+
+.PP
+\fB\-\-mode\fP="replicated"
+    Service mode (replicated or global)
+
+.PP
+\fB\-\-mount\fP=
+    Attach a mount to the service
+
+.PP
+\fB\-\-name\fP=""
+    Service name
+
+.PP
+\fB\-\-network\fP=[]
+    Network attachments
+
+.PP
+\fB\-p\fP, \fB\-\-publish\fP=[]
+    Publish a port as a node port
+
+.PP
+\fB\-\-replicas\fP=none
+    Number of tasks
+
+.PP
+\fB\-\-reserve\-cpu\fP=0.000
+    Reserve CPUs
+
+.PP
+\fB\-\-reserve\-memory\fP=0 B
+    Reserve Memory
+
+.PP
+\fB\-\-restart\-condition\fP=""
+    Restart when condition is met (none, on\-failure, or any)
+
+.PP
+\fB\-\-restart\-delay\fP=none
+    Delay between restart attempts
+
+.PP
+\fB\-\-restart\-max\-attempts\fP=none
+    Maximum number of restarts before giving up
+
+.PP
+\fB\-\-restart\-window\fP=none
+    Window used to evaluate the restart policy
+
+.PP
+\fB\-\-stop\-grace\-period\fP=none
+    Time to wait before force killing a container
+
+.PP
+\fB\-\-update\-delay\fP=0
+    Delay between updates
+
+.PP
+\fB\-\-update\-failure\-action\fP="pause"
+    Action on update failure (pause|continue)
+
+.PP
+\fB\-\-update\-parallelism\fP=1
+    Maximum number of tasks updated simultaneously (0 to update all at once)
+
+.PP
+\fB\-u\fP, \fB\-\-user\fP=""
+    Username or UID
+
+.PP
+\fB\-\-with\-registry\-auth\fP[=false]
+    Send registry authentication details to swarm agents
+
+.PP
+\fB\-w\fP, \fB\-\-workdir\fP=""
+    Working directory inside the container
+
+
+.SH OPTIONS INHERITED FROM PARENT COMMANDS
+.PP
+\fB\-\-help\fP[=false]
+    Print usage
+
+
+.SH SEE ALSO
+.PP
+\fBdocker\-service(1)\fP

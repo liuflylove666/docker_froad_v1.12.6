@@ -35,12 +35,14 @@ import (
 	"github.com/docker/docker/volume"
 	containertypes "github.com/docker/engine-api/types/container"
 	networktypes "github.com/docker/engine-api/types/network"
+	graphdrivertype "github.com/docker/engine-api/types"
 	"github.com/docker/go-connections/nat"
 	"github.com/docker/libnetwork"
 	"github.com/docker/libnetwork/netlabel"
 	"github.com/docker/libnetwork/options"
 	"github.com/docker/libnetwork/types"
 	"github.com/opencontainers/runc/libcontainer/label"
+	"github.com/docker/libnetwork/netutils"
 )
 
 const configFileName = "config.v2.json"
@@ -91,6 +93,7 @@ type CommonContainer struct {
 	LogCopier      *logger.Copier `json:"-"`
 	restartManager restartmanager.RestartManager
 	attachContext  *attachContext
+	GraphDriver	graphdrivertype.GraphDriverData 
 }
 
 // NewBaseContainer creates a new container with its
@@ -141,7 +144,7 @@ func (container *Container) ToDisk() error {
 	if err != nil {
 		return err
 	}
-
+	//container.DeviceDriveData,err = container.RWLayer.Metadata()
 	jsonSource, err := ioutils.NewAtomicFileWriter(pth, 0666)
 	if err != nil {
 		return err
@@ -783,6 +786,14 @@ func (container *Container) BuildCreateEndpointOptions(n libnetwork.Network, epC
 		createOptions []libnetwork.EndpointOption
 	)
 
+	// add by liuhaibo
+        if n.Type() == "macvlan" {
+            if container.Config.MacAddress == "" {
+                container.Config.MacAddress = netutils.GenerateRandomMAC().String()
+            }
+        }
+	// end add
+	
 	defaultNetName := runconfig.DefaultDaemonNetworkMode().NetworkName()
 
 	if n.Name() == defaultNetName || container.NetworkSettings.IsAnonymousEndpoint {

@@ -1,0 +1,39 @@
+.TH "DOCKER" "1" "Aug 2017" "Docker Community" "" 
+.nh
+.ad l
+
+
+.SH NAME
+.PP
+docker\-volume\-inspect \- Display detailed information on one or more volumes
+
+
+.SH SYNOPSIS
+.PP
+\fBdocker volume inspect [OPTIONS] VOLUME [VOLUME...]\fP
+
+
+.SH DESCRIPTION
+.PP
+Returns information about one or more volumes. By default, this command renders
+all results in a JSON array. You can specify an alternate format to execute a
+given template is executed for each result. Go's 
+\[la]https://golang.org/pkg/text/template/\[ra]
+package describes all the details of the format.
+
+
+.SH OPTIONS
+.PP
+\fB\-f\fP, \fB\-\-format\fP=""
+    Format the output using the given go template
+
+
+.SH OPTIONS INHERITED FROM PARENT COMMANDS
+.PP
+\fB\-\-help\fP[=false]
+    Print usage
+
+
+.SH SEE ALSO
+.PP
+\fBdocker\-volume(1)\fP

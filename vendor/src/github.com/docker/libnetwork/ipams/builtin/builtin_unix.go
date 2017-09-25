@@ -37,7 +37,7 @@ func Init(ic ipamapi.Callback, l, g interface{}) error {
 		return err
 	}
 
-	cps := &ipamapi.Capability{RequiresRequestReplay: true}
+	cps := &ipamapi.Capability{RequiresRequestReplay: true, RequiresMACAddress: true}
 
 	return ic.RegisterIpamDriverWithCapabilities(ipamapi.DefaultIPAM, a, cps)
 }

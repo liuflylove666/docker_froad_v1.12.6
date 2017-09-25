@@ -10,6 +10,8 @@ import (
 	"github.com/docker/libnetwork/datastore"
 	"github.com/docker/libnetwork/ipamapi"
 	"github.com/docker/libnetwork/types"
+	"github.com/d2g/dhcp4"
+
 )
 
 // SubnetKey is the pointer to the configured pools in each address space
@@ -27,11 +29,33 @@ type PoolData struct {
 	RefCount  int
 }
 
+type dhcpLeaseTable map[string]*dhcpLease
+
+
+type dhcpLease struct {
+	mac           net.HardwareAddr
+	leaseIP       *net.IPNet
+	gateway       *net.IPNet
+	dpacket       *dhcp4.Packet
+	parent        string
+	preferredAddr bool
+}
+
+
 // addrSpace contains the pool configurations for the address space
 type addrSpace struct {
 	subnets  map[SubnetKey]*PoolData
 	dbIndex  uint64
 	dbExists bool
+
+	DhcpServer       net.IP
+	DhcpInterface    string
+	CreatedSlaveLink bool
+	dhcpLeases       dhcpLeaseTable
+	IPv4Subnet       *net.IPNet
+	Gateway          *net.IPNet
+
+
 	id       string
 	scope    string
 	ds       datastore.DataStore

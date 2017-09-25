@@ -114,7 +114,7 @@ for image in "${images[@]}"; do
 done
 echo -n $'\n}\n' >> "$dir/repositories"
 
-rm -f "$dir"/tags-*.tmp
+#rm -f "$dir"/tags-*.tmp
 
 echo "Download of images into '$dir' complete."
 echo "Use something like the following to load the result into a Docker daemon:"

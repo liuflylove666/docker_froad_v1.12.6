@@ -5,6 +5,8 @@ import (
 	"net"
 	"sort"
 	"sync"
+	"strings"
+	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/libnetwork/bitseq"
@@ -13,6 +15,8 @@ import (
 	"github.com/docker/libnetwork/ipamapi"
 	"github.com/docker/libnetwork/ipamutils"
 	"github.com/docker/libnetwork/types"
+	"github.com/docker/libnetwork/ns"
+	"github.com/vishvananda/netlink"
 )
 
 const (
@@ -24,6 +28,7 @@ const (
 	// datastore keyes for ipam objects
 	dsConfigKey = "ipam/" + ipamapi.DefaultIPAM + "/config"
 	dsDataKey   = "ipam/" + ipamapi.DefaultIPAM + "/data"
+	dhcpInterface      = "dhcp_interface" // used for --ipam-opt dhcp_interface
 )
 
 // Allocator provides per address space ipv4/ipv6 book keeping
@@ -196,10 +201,27 @@ func (a *Allocator) GetDefaultAddressSpaces() (string, string, error) {
 	return localAddressSpace, globalAddressSpace, nil
 }
 
+
+
+
 // RequestPool returns an address pool along with its unique id.
 func (a *Allocator) RequestPool(addressSpace, pool, subPool string, options map[string]string, v6 bool) (string, *net.IPNet, map[string]string, error) {
 	log.Debugf("RequestPool(%s, %s, %s, %v, %t)", addressSpace, pool, subPool, options, v6)
 retry:
+
+
+	dp := &addrSpace{
+		dhcpLeases: dhcpLeaseTable{},
+	}
+
+	for option, value := range options {
+		switch option {
+		case dhcpInterface:
+			// parse DHCP interface option '--ipam-opt dhcp_interface=eth0'
+			dp.DhcpInterface = value
+			}
+		}
+
 	k, nw, ipr, pdf, err := a.parsePoolRequest(addressSpace, pool, subPool, v6)
 	if err != nil {
 		return "", nil, nil, types.InternalErrorf("failed to parse pool request for address space %q pool %q subpool %q: %v", addressSpace, pool, subPool, err)
@@ -233,6 +255,11 @@ retry:
 
 	return k.String(), nw, nil, insert()
 }
+
+
+
+
+
 
 // ReleasePool releases the address pool identified by the passed id
 func (a *Allocator) ReleasePool(poolID string) error {
@@ -450,13 +477,107 @@ func (a *Allocator) RequestAddress(poolID string, prefAddress net.IP, opts map[s
 		return nil, nil, types.InternalErrorf("could not find bitmask in datastore for %s on address %v request from pool %s: %v",
 			k.String(), prefAddress, poolID, err)
 	}
-	ip, err := a.getAddress(p.Pool, bm, prefAddress, p.Range)
+
+	//macAddr := opts[netlabel.MacAddress]
+
+	//if len(macAddr) <= 0 {
+	//	return nil, nil, fmt.Errorf("no mac address found in the request address call")
+	//}
+
+	if len(opts["dhcp_interface"]) > 0 && len(opts["com.docker.network.endpoint.macaddress"]) > 0 {
+			if !parentExists(opts["dhcp_interface"]) {
+				// if the subinterface parent_iface.vlan_id checks do not pass, return err.
+				//  a valid example is 'eth0.10' for a parent iface 'eth0' with a vlan id '10'
+				err := createVlanLink(opts["dhcp_interface"])
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to create the %s subinterface: %v", opts["dhcp_interface"], err)
+				}
+			}
+
+			ip, err := requestDHCPLease(opts["com.docker.network.endpoint.macaddress"], opts["dhcp_interface"])
+			log.Debugf("lcb-20170220-0003:%v", ip)
+			if err != nil {
+				return nil, nil, err
+				}
+			return &net.IPNet{IP: ip, Mask: p.Pool.Mask}, nil, nil
+
+	} else {
+		ip, err := a.getAddress(p.Pool, bm, prefAddress, p.Range)
+		log.Debugf("lcb-20170220-0004:%v", ip)
+		if err != nil {
+			return nil, nil, err
+		}
+		return &net.IPNet{IP: ip, Mask: p.Pool.Mask}, nil, nil
+	}
+}
+
+
+func parentExists(ifaceStr string) bool {
+	_, err := ns.NlHandle().LinkByName(ifaceStr)
 	if err != nil {
-		return nil, nil, err
+		return false
 	}
 
-	return &net.IPNet{IP: ip, Mask: p.Pool.Mask}, nil, nil
+	return true
 }
+
+func parseVlan(linkName string) (string, int, error) {
+	// parse -o parent=eth0.10
+	splitName := strings.Split(linkName, ".")
+	if len(splitName) != 2 {
+		return "", 0, fmt.Errorf("required interface name format is: name.vlan_id, ex. eth0.10 for vlan 10, instead received %s", linkName)
+	}
+	parent, vidStr := splitName[0], splitName[1]
+	// validate type and convert vlan id to int
+	vidInt, err := strconv.Atoi(vidStr)
+	if err != nil {
+		return "", 0, fmt.Errorf("unable to parse a valid vlan id from: %s (ex. eth0.10 for vlan 10)", vidStr)
+	}
+	// Check if the interface exists
+	if !parentExists(parent) {
+		return "", 0, fmt.Errorf("-o parent interface does was not found on the host: %s", parent)
+	}
+
+	return parent, vidInt, nil
+}
+
+func createVlanLink(parentName string) error {
+	if strings.Contains(parentName, ".") {
+		parent, vidInt, err := parseVlan(parentName)
+		if err != nil {
+			return err
+		}
+		// VLAN identifier or VID is a 12-bit field specifying the VLAN to which the frame belongs
+		if vidInt > 4094 || vidInt < 1 {
+			return fmt.Errorf("vlan id must be between 1-4094, received: %d", vidInt)
+		}
+		// get the parent link to attach a vlan subinterface
+		parentLink, err := ns.NlHandle().LinkByName(parent)
+		if err != nil {
+			return fmt.Errorf("failed to find master interface %s on the Docker host: %v", parent, err)
+		}
+		vlanLink := &netlink.Vlan{
+			LinkAttrs: netlink.LinkAttrs{
+				Name:        parentName,
+				ParentIndex: parentLink.Attrs().Index,
+			},
+			VlanId: vidInt,
+		}
+		// create the subinterface
+		if err := ns.NlHandle().LinkAdd(vlanLink); err != nil {
+			return fmt.Errorf("failed to create %s vlan link: %v", vlanLink.Name, err)
+		}
+		// Bring the new netlink iface up
+		if err := ns.NlHandle().LinkSetUp(vlanLink); err != nil {
+			return fmt.Errorf("failed to enable %s the macvlan parent link %v", vlanLink.Name, err)
+		}
+		log.Debugf("Added a vlan tagged netlink subinterface: %s with a vlan id: %d", parentName, vidInt)
+		return nil
+	}
+
+	return fmt.Errorf("invalid parent name %s, examples are \"eth0,eth1,eth0.10\"", parentName)
+}
+
 
 // ReleaseAddress releases the address from the specified pool ID
 func (a *Allocator) ReleaseAddress(poolID string, address net.IP) error {
@@ -500,6 +621,8 @@ func (a *Allocator) ReleaseAddress(poolID string, address net.IP) error {
 	aSpace.Unlock()
 
 	mask := p.Pool.Mask
+
+
 
 	h, err := types.GetHostPartIP(address, mask)
 	if err != nil {

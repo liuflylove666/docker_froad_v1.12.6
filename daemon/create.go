@@ -209,6 +209,8 @@ func (daemon *Daemon) setRWLayer(container *container.Container) error {
 		return err
 	}
 	container.RWLayer = rwLayer
+	container.GraphDriver.Name = container.Driver
+	container.GraphDriver.Data,err = rwLayer.Metadata()
 
 	return nil
 }

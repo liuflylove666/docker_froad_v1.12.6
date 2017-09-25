@@ -1,0 +1,167 @@
+.TH "DOCKER" "1" "Aug 2017" "Docker Community" "" 
+.nh
+.ad l
+
+
+.SH NAME
+.PP
+docker\-service\-update \- Update a service
+
+
+.SH SYNOPSIS
+.PP
+\fBdocker service update [OPTIONS] SERVICE\fP
+
+
+.SH DESCRIPTION
+.PP
+Update a service
+
+
+.SH OPTIONS
+.PP
+\fB\-\-args\fP=""
+    Service command args
+
+.PP
+\fB\-\-constraint\-add\fP=[]
+    Add or update placement constraints
+
+.PP
+\fB\-\-constraint\-rm\fP=[]
+    Remove a constraint
+
+.PP
+\fB\-\-container\-label\-add\fP=[]
+    Add or update container labels
+
+.PP
+\fB\-\-container\-label\-rm\fP=[]
+    Remove a container label by its key
+
+.PP
+\fB\-\-endpoint\-mode\fP=""
+    Endpoint mode (vip or dnsrr)
+
+.PP
+\fB\-\-env\-add\fP=[]
+    Add or update environment variables
+
+.PP
+\fB\-\-env\-rm\fP=[]
+    Remove an environment variable
+
+.PP
+\fB\-\-image\fP=""
+    Service image tag
+
+.PP
+\fB\-\-label\-add\fP=[]
+    Add or update service labels
+
+.PP
+\fB\-\-label\-rm\fP=[]
+    Remove a label by its key
+
+.PP
+\fB\-\-limit\-cpu\fP=0.000
+    Limit CPUs
+
+.PP
+\fB\-\-limit\-memory\fP=0 B
+    Limit Memory
+
+.PP
+\fB\-\-log\-driver\fP=""
+    Logging driver for service
+
+.PP
+\fB\-\-log\-opt\fP=[]
+    Logging driver options
+
+.PP
+\fB\-\-mount\-add\fP=
+    Add or update a mount on a service
+
+.PP
+\fB\-\-mount\-rm\fP=[]
+    Remove a mount by its target path
+
+.PP
+\fB\-\-name\fP=""
+    Service name
+
+.PP
+\fB\-\-publish\-add\fP=[]
+    Add or update a published port
+
+.PP
+\fB\-\-publish\-rm\fP=[]
+    Remove a published port by its target port
+
+.PP
+\fB\-\-replicas\fP=none
+    Number of tasks
+
+.PP
+\fB\-\-reserve\-cpu\fP=0.000
+    Reserve CPUs
+
+.PP
+\fB\-\-reserve\-memory\fP=0 B
+    Reserve Memory
+
+.PP
+\fB\-\-restart\-condition\fP=""
+    Restart when condition is met (none, on\-failure, or any)
+
+.PP
+\fB\-\-restart\-delay\fP=none
+    Delay between restart attempts
+
+.PP
+\fB\-\-restart\-max\-attempts\fP=none
+    Maximum number of restarts before giving up
+
+.PP
+\fB\-\-restart\-window\fP=none
+    Window used to evaluate the restart policy
+
+.PP
+\fB\-\-stop\-grace\-period\fP=none
+    Time to wait before force killing a container
+
+.PP
+\fB\-\-update\-delay\fP=0
+    Delay between updates
+
+.PP
+\fB\-\-update\-failure\-action\fP="pause"
+    Action on update failure (pause|continue)
+
+.PP
+\fB\-\-update\-parallelism\fP=1
+    Maximum number of tasks updated simultaneously (0 to update all at once)
+
+.PP
+\fB\-u\fP, \fB\-\-user\fP=""
+    Username or UID
+
+.PP
+\fB\-\-with\-registry\-auth\fP[=false]
+    Send registry authentication details to swarm agents
+
+.PP
+\fB\-w\fP, \fB\-\-workdir\fP=""
+    Working directory inside the container
+
+
+.SH OPTIONS INHERITED FROM PARENT COMMANDS
+.PP
+\fB\-\-help\fP[=false]
+    Print usage
+
+
+.SH SEE ALSO
+.PP
+\fBdocker\-service(1)\fP

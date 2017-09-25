@@ -66,7 +66,6 @@ if [ -z "$DOCKER_TEST_HOST" ]; then
 	( set -x; exec \
 		dockerd --debug \
 		--host "$DOCKER_HOST" \
-		--storage-driver "$DOCKER_GRAPHDRIVER" \
 		--pidfile "$DEST/docker.pid" \
 		--userland-proxy="$DOCKER_USERLANDPROXY" \
 		$storage_params \

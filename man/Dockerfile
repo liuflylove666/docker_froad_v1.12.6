@@ -1,20 +1,14 @@
-FROM    alpine:3.4
-
-RUN     apk add -U git go bash curl gcc musl-dev make
-
-RUN     mkdir -p /go/src /go/bin /go/pkg
-ENV     GOPATH=/go
-RUN     export GLIDE=v0.11.1; \
-        export TARGET=/go/src/github.com/Masterminds; \
-        mkdir -p ${TARGET} && \
-        git clone https://github.com/Masterminds/glide.git ${TARGET}/glide && \
-        cd ${TARGET}/glide && \
-        make build && \
-        cp ./glide /usr/bin/glide && \
-        cd / && rm -rf /go/src/* /go/bin/* /go/pkg/*
-
-COPY    glide.yaml /manvendor/
-COPY    glide.lock /manvendor/
+#FROM    golang:1.6.3-alpine
+FROM    pub.f-road.com.cn/golang:1.6.3-alpine
+RUN     echo 'http://mirrors.ustc.edu.cn/alpine/v3.4/main' > /etc/apk/repositories
+RUN     apk add -U git bash curl gcc musl-dev tar  && mkdir -pv /manvendor/
+COPY	man/glide-0.10.2-linux-amd64.tar.gz . 
+RUN     tar -xf glide-0.10.2-linux-amd64.tar.gz linux-amd64/glide && \
+        mv linux-amd64/glide /usr/bin/glide && \
+        chmod +x /usr/bin/glide
+COPY    man/glide.yaml /manvendor/
+COPY    man/glide.lock /manvendor/
+COPY    sys /manvendor/vendor/golang.org/x/sys 
 WORKDIR /manvendor/
 RUN     glide install && mv vendor src
 ENV     GOPATH=$GOPATH:/go/src/github.com/docker/docker/vendor:/manvendor
