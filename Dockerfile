@@ -77,9 +77,9 @@ RUN apt-get update && apt-get install -y \
 	--no-install-recommends \
 	&& pip install awscli==1.10.15 -i http://pypi.douban.com/simple
 
-RUN set -x && export http_proxy="http://10.43.1.35:8580" && apt-get install -y \
+RUN set -x  && apt-get install -y \
 	apt-utils \
-	libzfs-dev ubuntu-zfs && unset http_proxy 
+	libzfs-dev ubuntu-zfs
 
 # Get lvm2 source for compiling statically
 ENV LVM2_VERSION 2.02.103
@@ -100,11 +100,12 @@ RUN cd /usr/local/lvm2 \
 # Configure the container for OSX cross compilation
 ENV OSX_SDK MacOSX10.11.sdk
 ENV OSX_CROSS_COMMIT 8aa9b71a394905e6c5f4b59e2b97b87a004658a4
+COPY osxcross/MacOSX10.11.sdk.tar.xz /tmp/
 RUN set -x \
 	&& export OSXCROSS_PATH="/osxcross" \
 	&& git clone https://github.com/tpoechtrager/osxcross.git $OSXCROSS_PATH \
 	&& ( cd $OSXCROSS_PATH && git checkout -q $OSX_CROSS_COMMIT) \
-	&& curl -sSL https://s3.dockerproject.org/darwin/v2/${OSX_SDK}.tar.xz -o "${OSXCROSS_PATH}/tarballs/${OSX_SDK}.tar.xz" \
+	&& mkdir -pv ${OSXCROSS_PATH}/tarballs/ && cp /tmp/${OSX_SDK}.tar.xz  "${OSXCROSS_PATH}/tarballs/${OSX_SDK}.tar.xz" && rm -rf /tmp/${OSX_SDK}.tar.xz \
 	&& UNATTENDED=yes OSX_VERSION_MIN=10.6 ${OSXCROSS_PATH}/build.sh
 ENV PATH /osxcross/target/bin:$PATH
 
@@ -136,11 +137,11 @@ ENV DOCKER_CROSSPLATFORMS \
 	freebsd/amd64 freebsd/386 freebsd/arm \
 	windows/amd64 windows/386
 
-RUN curl -fsSL "https://storage.googleapis.com/golang/go1.4.3.linux-amd64.tar.gz" \
+RUN curl -fsSL "https://dl.gocn.io/golang/1.4.3/go1.4.3.linux-amd64.tar.gz" \
 	| tar -xzC /root && \
 	mv /root/go /root/go1.4 && \
 	cd /usr/local && \
-	curl -fsSL "https://storage.googleapis.com/golang/go$GO_VERSION.src.tar.gz" \
+	curl -fsSL "https://dl.gocn.io/golang/$GO_VERSION/go$GO_VERSION.src.tar.gz" \
 	| tar -xzC /usr/local && \
 	cd go && \
 	printf 'diff --git a/src/runtime/sys_darwin_amd64.s b/src/runtime/sys_darwin_amd64.s\nindex e09b906..fa8ff2f 100644\n--- a/src/runtime/sys_darwin_amd64.s\n+++ b/src/runtime/sys_darwin_amd64.s\n@@ -157,6 +157,7 @@ systime:\n\t// Fall back to system call (usually first call in this thread).\n\tMOVQ\tSP, DI\n\tMOVQ\t$0, SI\n+\tMOVQ\t$0, DX  // required as of Sierra; Issue 16570\n\tMOVL\t$(0x2000000+116), AX\n\tSYSCALL\n\tCMPQ\tAX, $0\n' | patch -p1 && \

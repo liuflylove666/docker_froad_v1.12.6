@@ -6,6 +6,7 @@ import (
 	builtinIpam "github.com/docker/libnetwork/ipams/builtin"
 	nullIpam "github.com/docker/libnetwork/ipams/null"
 	remoteIpam "github.com/docker/libnetwork/ipams/remote"
+	dhcpIpam "github.com/docker/libnetwork/ipams/dhcp"
 )
 
 func initIPAMDrivers(r *drvregistry.DrvRegistry, lDs, gDs interface{}) error {
@@ -13,6 +14,7 @@ func initIPAMDrivers(r *drvregistry.DrvRegistry, lDs, gDs interface{}) error {
 		builtinIpam.Init,
 		remoteIpam.Init,
 		nullIpam.Init,
+		dhcpIpam.Init,
 	} {
 		if err := fn(r, lDs, gDs); err != nil {
 			return err

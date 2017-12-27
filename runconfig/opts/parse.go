@@ -260,8 +260,7 @@ func Parse(flags *pflag.FlagSet, copts *ContainerOptions) (*container.Config, *c
 		if _, err := ValidateMACAddress(copts.flMacAddress); err != nil {
 			return nil, nil, nil, fmt.Errorf("%s is not a valid mac address", copts.flMacAddress)
 		}
-	} 
-
+	}
 	if copts.flStdin {
 		attachStdin = true
 	}
